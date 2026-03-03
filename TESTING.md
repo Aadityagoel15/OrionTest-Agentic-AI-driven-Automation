@@ -13,8 +13,8 @@ This script checks:
 - ✓ All dependencies are installed
 - ✓ Configuration is correct
 - ✓ Directories are created
-- ✓ Groq API key is configured
-- ✓ Groq API connection works
+- ✓ Groq API connection works (cloud mode)
+- ✓ Local model can initialize (local mode)
 - ✓ All agents can be initialized
 - ✓ Simple end-to-end test works
 
@@ -26,16 +26,31 @@ This script checks:
 ```python
 from config import Config
 Config.ensure_directories()
-print(Config.GROQ_API_KEY[:10] + "...")  # Should show first 10 chars
+print("Backend:", "local" if Config.is_local_llm() else "cloud")
+if Config.is_cloud_llm():
+    print("GROQ_API_KEY:", (Config.GROQ_API_KEY[:10] + "...") if Config.GROQ_API_KEY else "(missing)")
+else:
+    print("LOCAL_LLM_BASE_MODEL:", Config.LOCAL_LLM_BASE_MODEL)
+    print("LOCAL_LLM_LORA_PATH:", Config.LOCAL_LLM_LORA_PATH)
+    print("RAG_ENABLED:", Config.RAG_ENABLED)
 ```
 
-#### Test Groq API Connection
+#### Test Groq API Connection (cloud mode)
 ```python
 from groq_client import GroqClient
 
 client = GroqClient()
 response = client.generate_response("Say hello", "You are helpful")
 print(response)  # Should print a response
+```
+
+#### Test Local LLM (local mode)
+```python
+from llm.local_llm_client import LocalLLMClient
+
+client = LocalLLMClient()
+print(client.health_check())
+print(client.generate_response("Say hello", "You are helpful"))
 ```
 
 #### Test Requirements to Feature Agent

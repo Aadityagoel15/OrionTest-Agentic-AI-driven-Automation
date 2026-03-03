@@ -65,9 +65,12 @@ For web projects, set `BASE_URL` (or `bdd.config.yaml`) so discovery and executi
    # Copy template
    cp env_template.txt .env
    
-   # Edit .env and add your Groq API key
-   GROQ_API_KEY=your_groq_api_key_here
-   BASE_URL=https://your-application-url.com  # Required for web discovery/execution
+   # Edit .env and choose ONE backend:
+   # - Cloud (Groq): set GROQ_API_KEY and keep USE_LOCAL_LLM=false
+   # - Local (TinyLlama + LoRA): set USE_LOCAL_LLM=true and LOCAL_LLM_* values
+   #
+   # BASE_URL is required for web discovery/execution (optional for pure generation).
+   BASE_URL=https://your-application-url.com
    ```
 
 4. **Verify setup:**
@@ -227,20 +230,31 @@ Arguments:
 ### Environment Variables (`.env` file)
 
 ```env
-# Required for cloud LLM
+# Pick your backend:
+# - Cloud (Groq): USE_LOCAL_LLM=false and GROQ_API_KEY is required
+# - Local (TinyLlama + LoRA): USE_LOCAL_LLM=true and GROQ_API_KEY is optional
+USE_LOCAL_LLM=true
+
+# Cloud (Groq) - only required when USE_LOCAL_LLM=false
 GROQ_API_KEY=your_groq_api_key_here
-
-# Application URL (required for web discovery/execution)
-BASE_URL=https://your-application-url.com
-
-# Optional - AI model (default: llama-3.1-8b-instant)
 GROQ_MODEL=llama-3.1-8b-instant
 
-# Optional - Local LLM and RAG settings
-USE_LOCAL_LLM=false
-LLM_MAX_TOKENS=4096
+# Local (TinyLlama + LoRA) - only used when USE_LOCAL_LLM=true
+LOCAL_LLM_BASE_MODEL=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+LOCAL_LLM_LORA_PATH=models/tinyllama-lora-qa
+LOCAL_LLM_DEVICE=auto
+
+# Shared LLM settings
+LLM_MAX_TOKENS=512
+# NOTE: local backend forces deterministic generation (temperature ignored)
+LLM_TEMPERATURE=0.7
+
+# RAG (used by local backend)
 RAG_ENABLED=true
 RAG_CUSTOM_PATH=
+
+# Application URL (required for web discovery/execution; optional for pure generation)
+BASE_URL=https://your-application-url.com
 ```
 
 ### Project Configuration (`bdd.config.yaml`)
@@ -252,7 +266,7 @@ project:
 ```
 
 **Configuration Priority:**
-1. `.env` file values (API key, BASE_URL, model, LLM/RAG settings)
+1. `.env` file values (backend selection, keys, BASE_URL, model, LLM/RAG settings)
 2. `bdd.config.yaml` project block (`type: web` or `api`)
 3. Auto-detection from requirements (fallback)
 
@@ -295,7 +309,8 @@ This will check:
 - ✓ All imports work
 - ✓ Dependencies are installed
 - ✓ Configuration is correct
-- ✓ Groq API connection works
+- ✓ Groq API connection works (cloud mode)
+- ✓ Local model can initialize (local mode)
 - ✓ All agents can be initialized
 - ✓ Simple end-to-end test passes
 
@@ -313,7 +328,7 @@ For detailed testing instructions, see [TESTING.md](TESTING.md)
 
 | Issue | Solution |
 |-------|----------|
-| `GROQ_API_KEY not found` | Create `.env` file and add your API key |
+| `GROQ_API_KEY not found` | If `USE_LOCAL_LLM=false`, create `.env` and set `GROQ_API_KEY` |
 | `BASE_URL is required` | Set `BASE_URL` in `.env` or include URL in requirements |
 | Import errors | Run `pip install -r requirements.txt` |
 | Tests fail to execute | Verify application is running and `BASE_URL` is correct |

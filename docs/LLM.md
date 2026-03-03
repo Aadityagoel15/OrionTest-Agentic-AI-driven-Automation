@@ -33,6 +33,11 @@ Required settings:
 - `LOCAL_LLM_LORA_PATH`
 - `LOCAL_LLM_DEVICE` (auto, cpu, or cuda)
 
+Optional (recommended) settings:
+
+- `RAG_ENABLED` (default true)
+- `RAG_CUSTOM_PATH` (optional external docs folder)
+
 Example:
 
 ```
@@ -40,6 +45,7 @@ USE_LOCAL_LLM=true
 LOCAL_LLM_BASE_MODEL=TinyLlama/TinyLlama-1.1B-Chat-v1.0
 LOCAL_LLM_LORA_PATH=models/tinyllama-lora-qa
 LOCAL_LLM_DEVICE=auto
+RAG_ENABLED=true
 ```
 
 ## Shared LLM Settings

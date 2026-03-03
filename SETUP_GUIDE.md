@@ -30,11 +30,22 @@ pip install -r requirements.txt
    cp env_template.txt .env
    ```
 
-2. Edit `.env` file and add your Groq API key:
-   ```env
-   GROQ_API_KEY=your_actual_groq_api_key_here
-   ```
-   Get your API key from: https://console.groq.com/
+2. Edit `.env` and choose your LLM backend:
+   - **Cloud (Groq)**: keep `USE_LOCAL_LLM=false` and set:
+     ```env
+     GROQ_API_KEY=your_actual_groq_api_key_here
+     GROQ_MODEL=llama-3.1-8b-instant
+     ```
+     Get your API key from: https://console.groq.com/
+   - **Local (TinyLlama + LoRA)**: set:
+     ```env
+     USE_LOCAL_LLM=true
+     LOCAL_LLM_BASE_MODEL=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+     LOCAL_LLM_LORA_PATH=models/tinyllama-lora-qa
+     LOCAL_LLM_DEVICE=auto
+     RAG_ENABLED=true
+     LLM_MAX_TOKENS=512
+     ```
 
 3. (Optional) Set your application URL:
    ```env
@@ -72,14 +83,26 @@ The framework uses the following priority for configuration:
 Create/edit `.env` in the project root:
 
 ```env
-# Required
+# Pick your backend:
+# - Cloud (Groq): USE_LOCAL_LLM=false and GROQ_API_KEY is required
+# - Local (TinyLlama + LoRA): USE_LOCAL_LLM=true and GROQ_API_KEY is optional
+USE_LOCAL_LLM=true
+
+# Cloud (Groq) - only required when USE_LOCAL_LLM=false
 GROQ_API_KEY=your_groq_api_key_here
-
-# Optional - Your application URL
-BASE_URL=https://your-application-url.com
-
-# Optional - Change AI model (default: llama-3.1-8b-instant)
 GROQ_MODEL=llama-3.1-8b-instant
+
+# Local (TinyLlama + LoRA) - only used when USE_LOCAL_LLM=true
+LOCAL_LLM_BASE_MODEL=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+LOCAL_LLM_LORA_PATH=models/tinyllama-lora-qa
+LOCAL_LLM_DEVICE=auto
+RAG_ENABLED=true
+
+# Shared LLM settings
+LLM_MAX_TOKENS=512
+
+# Application URL (required for web discovery/execution; optional for pure generation)
+BASE_URL=https://your-application-url.com
 ```
 
 ### Option 2: Configure via `bdd.config.yaml`
@@ -229,7 +252,7 @@ BDD-Automation/
 
 ### "GROQ_API_KEY not found"
 - Create `.env` file from `env_template.txt`
-- Add your Groq API key: `GROQ_API_KEY=your_key_here`
+- If using cloud mode (`USE_LOCAL_LLM=false`), add your Groq API key: `GROQ_API_KEY=your_key_here`
 
 ### "BASE_URL is required"
 - Set `BASE_URL` in `.env`, OR

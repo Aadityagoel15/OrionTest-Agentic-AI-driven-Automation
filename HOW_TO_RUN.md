@@ -32,16 +32,31 @@ pip install -r requirements.txt
 Create a `.env` file in the project root (you can copy from `env_template.txt`):
 
 ```text
+# Choose ONE backend:
+# - Cloud (Groq): USE_LOCAL_LLM=false and GROQ_API_KEY is required
+# - Local (TinyLlama + LoRA): USE_LOCAL_LLM=true and GROQ_API_KEY is optional
+USE_LOCAL_LLM=true
+
+# Local LLM Configuration (only used when USE_LOCAL_LLM=true)
+LOCAL_LLM_BASE_MODEL=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+LOCAL_LLM_LORA_PATH=models/tinyllama-lora-qa
+LOCAL_LLM_DEVICE=auto
+LLM_MAX_TOKENS=512
+
+# RAG Configuration (used by local backend)
+RAG_ENABLED=true
+
+# Cloud LLM (optional fallback; required only when USE_LOCAL_LLM=false)
 GROQ_API_KEY=your_actual_groq_api_key_here
 
-# Required ONLY when executing against a real API
+# BASE_URL is required for web discovery/execution (optional for pure generation)
 BASE_URL=http://localhost:8080
 ```
 
 ### 🔑 Notes
 
-* `GROQ_API_KEY` is **mandatory**
-* `BASE_URL` is **optional**
+- `GROQ_API_KEY` is **mandatory only when** `USE_LOCAL_LLM=false` (cloud mode).
+- `BASE_URL` is **required for web discovery/execution** and any real execution against a running app/API. If you omit it, generation can still work, but execution/discovery will fail.
 
   * Required only if you want to hit a **real running API**
   * If not provided, test generation still works, but execution may fail
@@ -86,7 +101,8 @@ If this fails:
 
 * Verify Python version
 * Run `pip install -r requirements.txt`
-* Ensure `.env` exists and contains `GROQ_API_KEY`
+* If using cloud mode (`USE_LOCAL_LLM=false`), ensure `.env` exists and contains `GROQ_API_KEY`
+* If using local mode (`USE_LOCAL_LLM=true`), ensure your LoRA path exists at `LOCAL_LLM_LORA_PATH`
 
 ---
 

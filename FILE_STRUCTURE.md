@@ -10,7 +10,7 @@
 - `test_system.py` (quick health check)
 
 ## ⚙️ Configuration & setup
-- `env_template.txt` → copy to `.env` (add `GROQ_API_KEY`; set `BASE_URL` for web runs)
+- `env_template.txt` → copy to `.env` (choose local vs cloud backend; set `BASE_URL` for web runs)
 - `bdd.config.yaml` (optional project defaults: `type` = `web` or `api`, `base_url`)
 - `setup_and_run.bat` (Windows helper)
 

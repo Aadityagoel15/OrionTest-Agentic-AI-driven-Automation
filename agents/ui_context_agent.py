@@ -1,4 +1,4 @@
-from groq_client import GroqClient
+from llm import get_llm_client
 import json
 
 
@@ -18,7 +18,7 @@ class UIContextAgent:
     """
 
     def __init__(self):
-        self.llm = GroqClient()
+        self.llm_client = get_llm_client()
 
         self.system_prompt = """
 You are a Senior Automation Test Engineer with 10+ years of experience in test automation.
@@ -105,7 +105,7 @@ OUTPUT EXAMPLE (STYLE ONLY):
 Return ONLY the structured test intent.
 """
 
-        return self.llm.generate_response(
+        return self.llm_client.generate_response(
             prompt=prompt,
             system_prompt=self.system_prompt
         )

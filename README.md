@@ -1,11 +1,11 @@
 # BDD Automation Framework
 
-A **general-purpose** BDD (Behavior-Driven Development) automation framework powered by Groq AI. This framework automatically generates and executes test automation for **any website or API** - no coding required!
+A general-purpose BDD (Behavior-Driven Development) automation framework powered by pluggable LLM backends (Groq cloud or local TinyLlama + LoRA). This framework automatically generates and executes test automation for any website or API - no coding required.
 
 ## 🎯 What Can You Test?
 
-- ✅ **Web Applications** - Any website (desktop or mobile web)
-- ✅ **REST APIs** - Any API endpoint (CRUD operations, authentication, etc.)
+- ✅ Web Applications - Any website (desktop or mobile web)
+- ✅ REST APIs - Any API endpoint (CRUD operations, authentication, etc.)
 
 **No hardcoding required** - Works with any URL, any credentials, any workflow!
 
@@ -17,28 +17,31 @@ The system runs a coordinated pipeline:
 
 1. **(Optional) Requirements Extraction Agent**: Pulls testable behaviors from code/docs
 2. **Requirements-Aware UI Discovery (web)**: Discovers live UI elements and enriches requirements
-3. **Requirements to Feature Agent**: Converts requirements/user stories into Gherkin `.feature` files
-4. **Feature to Step Definition Agent**: Generates Python step definitions from feature files
-5. **Execution Agent**: Executes BDD tests using the behave framework
-6. **Reporting Agent**: Generates comprehensive test execution reports with AI-powered insights
-7. **Defect Agent**: Analyzes failures and creates detailed defect reports
+3. **RAG + LLM Context**: Retrieves framework rules, examples, and optional custom docs to guide generation
+4. **Requirements to Feature Agent**: Converts requirements/user stories into Gherkin `.feature` files
+5. **Feature to Step Definition Agent**: Generates Python step definitions from feature files
+6. **Execution Agent**: Executes BDD tests using the behave framework
+7. **Reporting Agent**: Generates comprehensive test execution reports with AI-powered insights
+8. **Defect Agent**: Analyzes failures and creates detailed defect reports
 
-For web projects, set `BASE_URL` so discovery and execution can reach the application.
+For web projects, set `BASE_URL` (or `bdd.config.yaml`) so discovery and execution can reach the application.
 
 ## Features
 
-- 🤖 Requirement extraction and feature file generation
-- 🔎 Live UI discovery + requirements enrichment for web apps
-- 📝 Automatic step definition generation
-- 🚀 Automated test execution
-- 📊 Reporting with AI insights
-- 🐛 Intelligent defect identification and analysis
-- 🔄 Complete pipeline automation
+- Requirement extraction and feature file generation
+- Live UI discovery and requirements enrichment for web apps
+- Automatic step definition generation
+- Automated test execution
+- Reporting with AI insights
+- Defect identification and analysis
+- Complete pipeline automation
+- Local or cloud LLM support
+- RAG support with custom documentation
 
 ## Prerequisites
 
 - Python 3.8 or higher
-- Groq API key ([Get one here](https://console.groq.com/))
+- Groq API key (only if using cloud) ([Get one here](https://console.groq.com/))
 
 ## 🚀 Quick Start
 
@@ -105,7 +108,7 @@ BDD-Automation/
 
 ## Usage
 
-## 📖 Usage Examples
+## Usage Examples
 
 ### Web Application Testing
 
@@ -219,12 +222,12 @@ Arguments:
 - `--requirements` (required): Inline text or path to a `.txt` file
 - `--feature-name` (optional): Used for naming generated files
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables (`.env` file)
 
 ```env
-# Required
+# Required for cloud LLM
 GROQ_API_KEY=your_groq_api_key_here
 
 # Application URL (required for web discovery/execution)
@@ -232,6 +235,12 @@ BASE_URL=https://your-application-url.com
 
 # Optional - AI model (default: llama-3.1-8b-instant)
 GROQ_MODEL=llama-3.1-8b-instant
+
+# Optional - Local LLM and RAG settings
+USE_LOCAL_LLM=false
+LLM_MAX_TOKENS=4096
+RAG_ENABLED=true
+RAG_CUSTOM_PATH=
 ```
 
 ### Project Configuration (`bdd.config.yaml`)
@@ -243,13 +252,13 @@ project:
 ```
 
 **Configuration Priority:**
-1. `.env` file values (API key, BASE_URL, model)
+1. `.env` file values (API key, BASE_URL, model, LLM/RAG settings)
 2. `bdd.config.yaml` project block (`type: web` or `api`)
 3. Auto-detection from requirements (fallback)
 
 See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed configuration options.
 
-## 🔄 How It Works
+## How It Works
 
 1. **You provide requirements** in plain English (file or command line)
 2. **(Web)** UI discovery enriches requirements with real element names
@@ -300,7 +309,7 @@ python orchestrator.py --requirements "As a user, I want to click a button so th
 
 For detailed testing instructions, see [TESTING.md](TESTING.md)
 
-## ❓ Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -336,11 +345,13 @@ class CustomAgent:
 
 Each agent has a `system_prompt` that guides the AI. Modify these in the agent files to customize behavior.
 
-## 📚 Documentation
+## Documentation
 
 - **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Complete setup guide for new users
 - **[HOW_TO_RUN.md](HOW_TO_RUN.md)** - Usage and examples
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Pipeline and agent roles
+- **[docs/LLM.md](docs/LLM.md)** - LLM backends and configuration
+- **[docs/RAG.md](docs/RAG.md)** - RAG sources and customization
 - **[FILE_STRUCTURE.md](FILE_STRUCTURE.md)** - Required/generated files
 - **[TESTING.md](TESTING.md)** - Ways to verify the system
 

@@ -10,3 +10,15 @@ requests>=2.31.0
 
 # UI automation / discovery
 playwright>=1.42.0
+
+# Local LLM (TinyLlama + LoRA)
+torch>=2.0.0
+transformers>=4.36.0
+peft>=0.7.0
+accelerate>=0.25.0
+safetensors>=0.4.0
+sentencepiece
+protobuf
+
+# Optional: For GPU acceleration (uncomment if using CUDA)
+# bitsandbytes>=0.41.0  # For quantization

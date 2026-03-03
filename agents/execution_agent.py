@@ -115,25 +115,33 @@ class ExecutionAgent:
                             feature_data = detailed_results[0]
                             elements = feature_data.get("elements", [])
                             
-                            total_scenarios = len([e for e in elements if e.get("type") == "scenario"])
-                            total_steps = sum(len(e.get("steps", [])) for e in elements)
+                            scenarios = [e for e in elements if e.get("type") == "scenario"]
+                            total_scenarios = len(scenarios)
+
+                            # Count only executed steps (those with a result) to avoid double-counting background definitions
+                            total_steps = sum(
+                                1
+                                for e in scenarios
+                                for step in e.get("steps", [])
+                                if step.get("result")
+                            )
                             
-                            passed_scenarios = len([e for e in elements if e.get("status") == "passed" and e.get("type") == "scenario"])
-                            failed_scenarios = len([e for e in elements if e.get("status") == "failed" and e.get("type") == "scenario"])
-                            skipped_scenarios = len([e for e in elements if e.get("status") == "skipped" and e.get("type") == "scenario"])
+                            passed_scenarios = len([e for e in scenarios if e.get("status") == "passed"])
+                            failed_scenarios = len([e for e in scenarios if e.get("status") == "failed"])
+                            skipped_scenarios = len([e for e in scenarios if e.get("status") == "skipped"])
                             
                             passed_steps = sum(
-                                1 for e in elements 
+                                1 for e in scenarios 
                                 for step in e.get("steps", []) 
                                 if step.get("result", {}).get("status") == "passed"
                             )
                             failed_steps = sum(
-                                1 for e in elements 
+                                1 for e in scenarios 
                                 for step in e.get("steps", []) 
                                 if step.get("result", {}).get("status") == "failed"
                             )
                             skipped_steps = sum(
-                                1 for e in elements 
+                                1 for e in scenarios 
                                 for step in e.get("steps", []) 
                                 if step.get("result", {}).get("status") == "skipped"
                             )

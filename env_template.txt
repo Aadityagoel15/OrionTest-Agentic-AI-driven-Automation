@@ -2,8 +2,16 @@
 # Copy this file to .env and configure the values below
 
 # ============================================================
-# REQUIRED: Groq API Configuration
+# LLM BACKEND SELECTION
 # ============================================================
+# Choose between local (TinyLlama + LoRA) or cloud (Groq) inference
+# Options: true = use local LLM, false = use Groq API (default)
+USE_LOCAL_LLM=false
+
+# ============================================================
+# CLOUD LLM: Groq API Configuration
+# ============================================================
+# Required if USE_LOCAL_LLM=false
 # Get your API key from: https://console.groq.com/
 GROQ_API_KEY=your_groq_api_key_here
 
@@ -12,7 +20,45 @@ GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=llama-3.1-8b-instant
 
 # ============================================================
-# OPTIONAL: Application Configuration
+# LOCAL LLM: TinyLlama + LoRA Configuration
+# ============================================================
+# Only used if USE_LOCAL_LLM=true
+# Base model name (HuggingFace model ID)
+LOCAL_LLM_BASE_MODEL=TinyLlama/TinyLlama-1.1B-Chat-v1.0
+
+# Path to LoRA adapter files
+LOCAL_LLM_LORA_PATH=models/tinyllama-lora-qa
+
+# Device selection: auto, cuda, or cpu
+LOCAL_LLM_DEVICE=auto
+
+# ============================================================
+# RAG (Retrieval Augmented Generation) Configuration
+# ============================================================
+# Enable/disable RAG for local LLM (default: true)
+RAG_ENABLED=true
+
+# Number of documents to retrieve (default: 5)
+RAG_TOP_K=5
+
+# Maximum tokens for RAG context (default: 1000)
+RAG_MAX_CONTEXT_TOKENS=1000
+
+# Optional: Custom documentation/code path for RAG
+# Example: C:\client_repo\docs or /path/to/docs
+RAG_CUSTOM_PATH=
+#
+# You can also drop files into: rag/sources/company_docs/
+
+# Optional: Comma-separated extensions to include (default shown)
+# RAG_CUSTOM_EXTS=md,txt,feature,py,java,js,ts,tsx,jsx,json,yaml,yml
+RAG_CUSTOM_EXTS=
+
+# Optional: Max file size in bytes for custom docs (default: 1000000)
+RAG_CUSTOM_MAX_BYTES=1000000
+
+# ============================================================
+# APPLICATION Configuration
 # ============================================================
 # Base URL for your application (required for web/api testing)
 # This will be used when generating and executing tests
@@ -20,10 +66,11 @@ GROQ_MODEL=llama-3.1-8b-instant
 BASE_URL=https://example.com
 
 # ============================================================
-# OPTIONAL: LLM Configuration
+# SHARED LLM Configuration
 # ============================================================
-# Temperature for AI responses (0.0 to 1.0, default: 0.7)
-# Lower = more deterministic, Higher = more creative
+# Temperature for AI responses (0.0 to 1.0)
+# NOTE: For local LLM, this is ignored (always 0.0 for determinism)
+# For cloud LLM, default is 0.7
 LLM_TEMPERATURE=0.7
 
 # Maximum tokens for AI responses (default: 4096)
@@ -32,11 +79,21 @@ LLM_MAX_TOKENS=4096
 # ============================================================
 # Setup Instructions:
 # ============================================================
+# 
+# OPTION A: Use Cloud LLM (Groq) - Default
 # 1. Copy this file: cp env_template.txt .env
 # 2. Edit .env and add your GROQ_API_KEY
-# 3. (Optional) Set BASE_URL for your application
+# 3. Set BASE_URL for your application
 # 4. Run: python test_system.py
-# 5. Start using the framework!
+#
+# OPTION B: Use Local LLM (TinyLlama + LoRA)
+# 1. Copy this file: cp env_template.txt .env
+# 2. Set USE_LOCAL_LLM=true
+# 3. Ensure model files exist in models/tinyllama-lora-qa/
+# 4. Set BASE_URL for your application
+# 5. Run: python test_system.py
+#
+# See docs/local-llm-integration/ for detailed documentation.
 
 
 

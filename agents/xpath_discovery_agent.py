@@ -1,7 +1,7 @@
 import os
 import re
 from playwright.sync_api import sync_playwright
-from groq_client import GroqClient
+from llm import get_llm_client
 
 
 class XPathPropertiesAgent:
@@ -19,7 +19,7 @@ class XPathPropertiesAgent:
     def __init__(self, headless: bool = True):
         self.headless = headless
         self.properties = {}
-        self.groq_client = GroqClient()
+        self.llm_client = get_llm_client()
 
     # --------------------------------------------------
     def generate(self, url: str, output_file: str):
@@ -319,7 +319,7 @@ Example:
 login-button=login,sign-in,submit
 """
             
-            response = self.groq_client.generate_response(
+            response = self.llm_client.generate_response(
                 prompt=prompt,
                 system_prompt="""You are a Senior Automation Test Engineer with 10+ years of experience in test automation.
 

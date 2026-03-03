@@ -6,7 +6,13 @@ Configuration settings for BDD Automation AI Agents
 import os
 from dotenv import load_dotenv
 
+# Load base environment first (general settings)
 load_dotenv()
+
+# Load LLM-specific environment file if provided (non-hidden support)
+llm_env_file = os.getenv("LLM_ENV_FILE", "llm.env.example")
+if os.path.exists(llm_env_file):
+    load_dotenv(dotenv_path=llm_env_file, override=True)
 
 # ------------------------------------------------------------------
 # Project Type
@@ -32,17 +38,56 @@ class ExecutionMode:
     PROJECT = "project"
 
 
+# ------------------------------------------------------------------
+# LLM Backend Selection
+# ------------------------------------------------------------------
+class LLMBackend:
+    """
+    LLM backend selection.
+    LOCAL  → TinyLlama + LoRA (deterministic, no API costs)
+    CLOUD  → Groq API (faster, requires API key)
+    """
+    LOCAL = "local"
+    CLOUD = "cloud"
+
+
 class Config:
     """Runtime-safe + subprocess-safe configuration"""
 
     # ------------------------------------------------------------------
-    # LLM / Groq
+    # LLM Configuration
+    # ------------------------------------------------------------------
+    # Backend selection: "local" or "cloud"
+    USE_LOCAL_LLM = os.getenv("USE_LOCAL_LLM", "false").lower() in ("true", "1", "yes", "on")
+    LLM_BACKEND = os.getenv("LLM_BACKEND", LLMBackend.CLOUD if not os.getenv("USE_LOCAL_LLM", "false").lower() in ("true", "1", "yes", "on") else LLMBackend.LOCAL)
+    
+    # ------------------------------------------------------------------
+    # Cloud LLM (Groq) Settings
     # ------------------------------------------------------------------
     GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
     GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
-
-    TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", 0.7))
+    
+    # ------------------------------------------------------------------
+    # Local LLM (TinyLlama + LoRA) Settings
+    # ------------------------------------------------------------------
+    LOCAL_LLM_BASE_MODEL = os.getenv("LOCAL_LLM_BASE_MODEL", "TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+    LOCAL_LLM_LORA_PATH = os.getenv("LOCAL_LLM_LORA_PATH", "models/tinyllama-lora-qa")
+    LOCAL_LLM_DEVICE = os.getenv("LOCAL_LLM_DEVICE", "auto")  # "auto", "cuda", "cpu"
+    
+    # ------------------------------------------------------------------
+    # Shared LLM Settings (apply to both backends)
+    # ------------------------------------------------------------------
+    # For local LLM: temperature=0, do_sample=False (deterministic)
+    # For cloud LLM: temperature can be configured
+    TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", 0.0 if os.getenv("USE_LOCAL_LLM", "false").lower() in ("true", "1", "yes", "on") else 0.7))
     MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", 4096))
+    
+    # ------------------------------------------------------------------
+    # RAG Configuration
+    # ------------------------------------------------------------------
+    RAG_ENABLED = os.getenv("RAG_ENABLED", "true").lower() in ("true", "1", "yes", "on")
+    RAG_TOP_K = int(os.getenv("RAG_TOP_K", 5))
+    RAG_MAX_CONTEXT_TOKENS = int(os.getenv("RAG_MAX_CONTEXT_TOKENS", 1000))
 
     # ------------------------------------------------------------------
     # 🔒 RUNTIME STATE (IN-MEMORY CACHE)
@@ -155,6 +200,57 @@ class Config:
     @classmethod
     def is_project_mode(cls) -> bool:
         return cls.get_execution_mode() == ExecutionMode.PROJECT
+
+    # ------------------------------------------------------------------
+    # LLM Backend Helpers
+    # ------------------------------------------------------------------
+    @classmethod
+    def get_llm_backend(cls) -> str:
+        """Get the current LLM backend setting."""
+        if cls.USE_LOCAL_LLM:
+            return LLMBackend.LOCAL
+        return cls.LLM_BACKEND
+    
+    @classmethod
+    def is_local_llm(cls) -> bool:
+        """Check if using local LLM backend."""
+        return cls.get_llm_backend() == LLMBackend.LOCAL
+    
+    @classmethod
+    def is_cloud_llm(cls) -> bool:
+        """Check if using cloud LLM backend."""
+        return cls.get_llm_backend() == LLMBackend.CLOUD
+    
+    @classmethod
+    def set_llm_backend(cls, backend: str):
+        """
+        Set the LLM backend at runtime.
+        
+        Args:
+            backend: "local" or "cloud"
+        """
+        if backend == LLMBackend.LOCAL:
+            cls.USE_LOCAL_LLM = True
+            cls.LLM_BACKEND = LLMBackend.LOCAL
+            os.environ["USE_LOCAL_LLM"] = "true"
+        else:
+            cls.USE_LOCAL_LLM = False
+            cls.LLM_BACKEND = LLMBackend.CLOUD
+            os.environ["USE_LOCAL_LLM"] = "false"
+    
+    @classmethod
+    def get_llm_client(cls):
+        """
+        Get the appropriate LLM client based on configuration.
+        
+        Returns:
+            LLM client instance (LocalLLMClient or GroqClient)
+        """
+        from llm import get_llm_client
+        return get_llm_client(
+            force_local=cls.is_local_llm(),
+            force_cloud=cls.is_cloud_llm()
+        )
 
     # ------------------------------------------------------------------
     # Import utility constants for backward compatibility

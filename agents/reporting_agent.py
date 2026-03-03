@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from groq_client import GroqClient
+from llm import get_llm_client
 from config import Config
 
 
@@ -21,7 +21,7 @@ class ReportingAgent:
 
     def __init__(self):
         Config.ensure_directories()
-        self.llm = GroqClient()
+        self.llm_client = get_llm_client()
 
         self.system_prompt = """
 You are a Senior Automation Test Engineer with 10+ years of experience in test automation.
@@ -179,7 +179,7 @@ Do NOT rewrite execution facts.
 """
 
         try:
-            analysis = self.llm.generate_response(
+            analysis = self.llm_client.generate_response(
                 prompt=prompt,
                 system_prompt=self.system_prompt
             )

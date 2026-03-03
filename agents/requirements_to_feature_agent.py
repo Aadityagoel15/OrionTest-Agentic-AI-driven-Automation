@@ -3,7 +3,7 @@ import os
 import re
 import yaml
 
-from groq_client import GroqClient
+from llm import get_llm_client
 from config import Config, ProjectType
 from utils.logging_utils import get_logger
 from utils.exceptions import FeatureGenerationError
@@ -28,7 +28,7 @@ class RequirementsToFeatureAgent:
 """
 
     def __init__(self):
-        self.groq_client = GroqClient()
+        self.llm_client = get_llm_client()
 
     # ==================================================
     # 🚀 MAIN ENTRY

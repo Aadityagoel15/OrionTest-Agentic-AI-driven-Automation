@@ -2,7 +2,7 @@ import os
 import ast
 import re
 import hashlib
-from groq_client import GroqClient
+from llm import get_llm_client
 from config import Config, ProjectType
 
 
@@ -88,7 +88,7 @@ Remember: You are writing FULL Python automation code that uses Playwright for w
 """
 
     def __init__(self):
-        self.groq_client = GroqClient()
+        self.llm_client = get_llm_client()
 
     # ------------------------------------------------------------------
     def generate_step_definitions(

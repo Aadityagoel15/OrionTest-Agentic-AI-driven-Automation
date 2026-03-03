@@ -1,0 +1,74 @@
+# Step Definition Generation Rules
+
+## IMPORT REQUIREMENTS
+
+All step definition files MUST include:
+```python
+from behave import given, when, then
+from playwright.sync_api import expect
+```
+
+## DECORATOR PATTERNS
+
+### Given Steps
+@given('the user navigates to "{url}"')
+@given('the user enters "{value}" into the "{field_name}" field')
+@given('the user clicks the "{button_name}" button')
+
+### When Steps
+@when('the user enters "{value}" into the "{field_name}" field')
+@when('the user clicks the "{button_name}" button')
+@when('the user clicks the "{button_name}" button for the item "{item_name}"')
+
+### Then Steps
+@then('the user should see text "{text}"')
+@then('the user should be on the {page_name} page')
+@then('the action should succeed')
+@then('the action should fail')
+
+## IMPLEMENTATION PATTERNS
+
+### Navigation
+```python
+@given('the user navigates to "{url}"')
+def step_navigate(context, url):
+    context.page.goto(url)
+```
+
+### Form Input
+```python
+@when('the user enters "{value}" into the "{field_name}" field')
+def step_enter_field(context, value, field_name):
+    selector = f'[data-test="{field_name}"], [id="{field_name}"], [name="{field_name}"]'
+    context.page.locator(selector).fill(value)
+```
+
+### Button Click
+```python
+@when('the user clicks the "{button_name}" button')
+def step_click_button(context, button_name):
+    context.page.get_by_role("button", name=button_name).click()
+```
+
+### Text Verification
+```python
+@then('the user should see text "{text}"')
+def step_see_text(context, text):
+    expect(context.page.get_by_text(text)).to_be_visible()
+```
+
+## ERROR HANDLING
+
+All steps should use appropriate waits:
+- Use Playwright's auto-waiting features
+- For explicit waits: page.wait_for_selector()
+- Timeout: Use configurable timeouts from context
+
+## LOCATOR PRIORITY
+
+1. data-test attribute (most reliable)
+2. Accessible name (role-based)
+3. ID attribute
+4. Name attribute
+5. CSS selector (last resort)
+6. XPath (avoid if possible)

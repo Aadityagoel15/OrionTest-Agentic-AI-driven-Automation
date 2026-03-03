@@ -12,7 +12,7 @@ This ensures code generation is based on REAL UI elements, not guessed names.
 """
 
 from playwright.sync_api import sync_playwright
-from groq_client import GroqClient
+from llm import get_llm_client
 import re
 from typing import Dict, List, Tuple
 from utils.logging_utils import get_logger
@@ -27,7 +27,7 @@ class RequirementsAwareUIDiscoveryAgent:
 
     def __init__(self, headless: bool = True):
         self.headless = headless
-        self.groq_client = GroqClient()
+        self.llm_client = get_llm_client()
         self.discovered_elements = {}
 
     def discover_and_map(self, requirements: str, base_url: str) -> Dict:

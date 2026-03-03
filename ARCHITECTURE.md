@@ -2,7 +2,7 @@
 
 ## Overview
 
-The BDD Automation AI Agents system uses a pipeline architecture where each agent handles a specific stage of the BDD workflow. All agents communicate with Groq API for AI-powered processing.
+The BDD Automation AI Agents system uses a pipeline architecture where each agent handles a specific stage of the BDD workflow. AI-powered stages can use either the Groq cloud API or a local TinyLlama + LoRA model, configured at runtime.
 
 **Supported project types:** Web and API (these are the tested paths in the current release).
 
@@ -14,6 +14,8 @@ Requirements / project artifacts
 [Optional] Requirements Extraction Agent (from code/docs)
     ↓
 [Web] Requirements-Aware UI Discovery + UI context + XPath discovery
+    ↓
+[RAG retrieval + LLM context]
     ↓
 [Agent 1: Requirements → Feature]
     ↓
@@ -96,10 +98,10 @@ Defect Reports
 
 ## Core Components
 
-### GroqClient (`groq_client.py`)
-- Centralized Groq API communication
-- Handles API calls, error handling, JSON parsing
-- Used by all AI-powered agents
+### LLM Backends (`llm/`, `groq_client.py`)
+- Groq cloud client (`groq_client.py`)
+- Local TinyLlama + LoRA client (`llm/local_llm_client.py`)
+- Unified client factory (`llm/__init__.py`) selects backend based on env
 
 ### Config (`config.py`)
 - Centralized configuration management
@@ -111,20 +113,26 @@ Defect Reports
 - Manages pipeline execution
 - Provides CLI interface
 
+### RAG (`rag/`)
+- Source manager loads docs, rules, examples, and optional custom docs
+- Retriever uses keyword-based TF-IDF for deterministic matching
+- Context builder formats retrieved docs for prompt injection
+
 ## Data Flow
 
 1. **Requirements** → Stored in `requirements/` or passed directly
-2. **Feature Files** → Generated in `features/` directory
-3. **Step Definitions** → Generated in `features/steps/` directory
-4. **UI Locators (web)** → Generated in `reports/ui_locators.properties`
-5. **Execution Results** → Stored in `reports/` as JSON
-6. **Test Reports** → Stored in `reports/` as JSON and TXT
-7. **Defect Reports** → Stored in `reports/` as JSON and TXT
+2. **RAG Sources** → Loaded from `rag/sources/`, `features/steps/`, and optional custom docs
+3. **Feature Files** → Generated in `features/` directory
+4. **Step Definitions** → Generated in `features/steps/` directory
+5. **UI Locators (web)** → Generated in `reports/ui_locators.properties`
+6. **Execution Results** → Stored in `reports/` as JSON
+7. **Test Reports** → Stored in `reports/` as JSON and TXT
+8. **Defect Reports** → Stored in `reports/` as JSON and TXT
 
 ## Technology Stack
 
 - **Language**: Python 3.8+
-- **AI API**: Groq (Llama models)
+- **AI API**: Groq (cloud) or local TinyLlama + LoRA
 - **BDD Framework**: behave
 - **Configuration**: python-dotenv
 - **Reporting**: JSON, TXT, HTML (via behave)
@@ -141,6 +149,7 @@ Defect Reports
 - Modify `system_prompt` in each agent
 - Adjust `temperature` and `max_tokens` in Config
 - Change Groq model in Config (e.g., `mixtral-8x7b-32768`)
+- Provide domain docs via `rag/sources/company_docs/` or `RAG_CUSTOM_PATH`
 
 ## Error Handling
 

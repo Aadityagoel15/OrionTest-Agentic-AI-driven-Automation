@@ -9,7 +9,7 @@ ROLE:
 
 import os
 from pathlib import Path
-from groq_client import GroqClient
+from llm import get_llm_client
 from config import Config
 
 
@@ -65,7 +65,7 @@ OUTPUT STYLE:
 """
 
     def __init__(self):
-        self.groq_client = GroqClient()
+        self.llm_client = get_llm_client()
 
     # ------------------------------------------------------------------
     # SOURCE CODE ANALYSIS
@@ -108,7 +108,7 @@ FORMAT OUTPUT AS:
 """
 
         try:
-            return self.groq_client.generate_response(prompt, self.SYSTEM_PROMPT)
+            return self.llm_client.generate_response(prompt, self.SYSTEM_PROMPT)
         except Exception as e:
             return f"Error extracting requirements from code: {str(e)}"
 
@@ -141,7 +141,7 @@ FORMAT OUTPUT AS:
 """
 
         try:
-            return self.groq_client.generate_response(prompt, self.SYSTEM_PROMPT)
+            return self.llm_client.generate_response(prompt, self.SYSTEM_PROMPT)
         except Exception as e:
             return f"Error extracting requirements from documentation: {str(e)}"
 
@@ -169,7 +169,7 @@ FORMAT OUTPUT AS:
 """
 
         try:
-            return self.groq_client.generate_response(prompt, self.SYSTEM_PROMPT)
+            return self.llm_client.generate_response(prompt, self.SYSTEM_PROMPT)
         except Exception as e:
             return f"Error processing user stories: {str(e)}"
 
@@ -265,7 +265,7 @@ FORMAT OUTPUT AS:
 """
 
         try:
-            return self.groq_client.generate_response(prompt, self.SYSTEM_PROMPT)
+            return self.llm_client.generate_response(prompt, self.SYSTEM_PROMPT)
         except Exception as e:
             return f"Error extracting requirements from API spec: {str(e)}"
 

@@ -1,0 +1,71 @@
+# Canonical Gherkin Grammar Rules for QA Automation
+
+## CRITICAL RULES
+
+### 1. Subject Normalization
+- All steps MUST use "the user" as the subject
+- NEVER use: "I", "User", "A user", "The tester"
+- CORRECT: "Given the user navigates to..."
+- INCORRECT: "Given I navigate to..."
+
+### 2. Step Keywords
+- Background section: Use "Given" for all steps
+- Scenario section: 
+  - "Given" for preconditions (rare in scenarios with Background)
+  - "When" for actions
+  - "Then" for assertions/verifications
+  - "And" to continue the same type
+
+### 3. Verb Tense
+- Use present tense for all actions
+- CORRECT: "the user clicks"
+- INCORRECT: "the user clicked" or "the user will click"
+
+## CANONICAL STEP PATTERNS
+
+### Navigation
+Pattern: the user navigates to "{url}"
+Example: Given the user navigates to "https://example.com"
+
+### Form Input
+Pattern: the user enters "{value}" into the "{field_name}" field
+Example: When the user enters "john@email.com" into the "email" field
+
+### Button Clicks
+Pattern: the user clicks the "{button_name}" button
+Example: When the user clicks the "Submit" button
+
+### Scoped Button Clicks (for repeated buttons)
+Pattern: the user clicks the "{button_name}" button for the item "{item_name}"
+Example: When the user clicks the "Add to cart" button for the item "Laptop"
+
+### Text Verification
+Pattern: the user should see text "{expected_text}"
+Example: Then the user should see text "Welcome back!"
+
+### Page Verification
+Pattern: the user should be on the {page_name} page
+Example: Then the user should be on the dashboard page
+
+### Generic Success/Failure
+Pattern: the action should succeed
+Pattern: the action should fail
+
+## REFUSAL BEHAVIOR
+
+The model MUST refuse to generate when:
+1. Required UI elements are not present in discovery or context
+2. Required credentials are not provided
+3. Required URLs are not specified
+
+Refusal format:
+ERROR: Required UI element not present in discovery or context.
+ERROR: Missing required context: {what is missing}
+
+## OUTPUT FORMAT RULES
+
+1. Return ONLY valid Gherkin syntax
+2. NO explanations or commentary
+3. NO markdown code fences around the feature content
+4. NO invented step patterns - use only canonical patterns
+5. NO hallucinated UI element names

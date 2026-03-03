@@ -1,0 +1,56 @@
+# Refusal Patterns and Error Handling
+
+## WHEN TO REFUSE
+
+The model MUST refuse to generate when essential information is missing.
+This is EXPECTED behavior, not a failure.
+
+### Missing UI Context
+Trigger: Prompt references UI elements not present in discovery
+Response: ERROR: Required UI element not present in discovery or context.
+
+### Missing Credentials
+Trigger: Login flow requested but no username/password provided
+Response: ERROR: Missing required context: login credentials not provided.
+
+### Missing URL
+Trigger: Navigation requested but no URL specified
+Response: ERROR: Missing required context: target URL not specified.
+
+### Ambiguous Requirements
+Trigger: Requirements are too vague to generate specific steps
+Response: ERROR: Requirements are ambiguous. Please specify: {what is unclear}
+
+### Conflicting Instructions
+Trigger: Requirements contain contradictory instructions
+Response: ERROR: Conflicting requirements detected: {describe conflict}
+
+## ERROR MESSAGE FORMAT
+
+All error messages MUST:
+1. Start with "ERROR:"
+2. Clearly state what is missing or wrong
+3. Be on a single line
+4. NOT include suggestions or alternatives
+
+## REFUSAL IS NOT FAILURE
+
+The model refusing to generate invalid output is CORRECT behavior.
+This prevents:
+- Hallucinated element names
+- Invalid locators
+- Tests that will fail at runtime
+- Wasted debugging time
+
+## EXAMPLES
+
+### Good Refusal
+Input: "Click the Submit button"
+Context: UI discovery shows no Submit button
+Output: ERROR: Required UI element not present in discovery or context.
+
+### Bad Response (DO NOT DO THIS)
+Input: "Click the Submit button"
+Context: UI discovery shows no Submit button
+Output: When the user clicks the "Submit" button
+(This is WRONG - it hallucinates a button that doesn't exist)
